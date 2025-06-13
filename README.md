@@ -1,0 +1,2 @@
+# locknemoji
+emoji tahmin oyunu
