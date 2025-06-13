@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Footer
     document.getElementById('footer').innerHTML = `
-        <span>locknemoji © 2025 | <a href="https://github.com/mehmetresulyilmaz" target="_blank" style="color:#43c6ac;text-decoration:none;">github.com/mehmetresulyilmaz</a></span>
+        <span>locknemoji © 2025</span>
     `;
 
     // toggleRules fonksiyonunu global olarak ekle

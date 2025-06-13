@@ -1,7 +1,4 @@
 # locknemoji
-<<<<<<< HEAD
-emoji tahmin oyunu
-=======
 
 🔒 Eğlenceli ve zeka geliştirici bir emoji kombinasyon oyunu!
 
@@ -36,4 +33,3 @@ Oyunu hemen deneyin: [https://mehmetresulyilmaz.github.io/locknemoji](https://me
 ---
 
 > Bu proje GitHub Pages ile ücretsiz olarak yayınlanmaktadır.
->>>>>>> ff1c738 (locknemoji: readme ve son düzenlemeler)
