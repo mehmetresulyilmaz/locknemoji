@@ -1,0 +1,103 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #f8ffae 0%, #43c6ac 100%);
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.4s;
+}
+body.dark {
+    background: linear-gradient(135deg, #232526 0%, #414345 100%);
+}
+.container {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 32px 24px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    transition: background 0.4s, color 0.4s;
+}
+body.dark .container {
+    background: #232526;
+    color: #eee;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+}
+h2 {
+    color: #43c6ac;
+    transition: color 0.4s;
+}
+body.dark h2 {
+    color: #7fffd4;
+}
+#lock-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+button {
+    background: #43c6ac;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 8px 0;
+    transition: background 0.3s, color 0.3s;
+}
+body.dark button {
+    background: #333;
+    color: #7fffd4;
+    border: 1px solid #7fffd4;
+}
+.score {
+    margin-top: 12px;
+    font-size: 1.1rem;
+    color: #888;
+    transition: color 0.4s;
+}
+body.dark .score {
+    color: #b2dfdb;
+}
+.result {
+    font-size: 1.2rem;
+    margin: 12px 0;
+    transition: color 0.4s;
+}
+body.dark .result {
+    color: #ffe082;
+}
+.rules-box {
+    background: #f8ffae;
+    color: #333;
+    transition: background 0.4s, color 0.4s;
+}
+body.dark .rules-box {
+    background: #333;
+    color: #ffe082;
+}
+.rules-toggle {
+    background: #fff;
+    color: #43c6ac;
+    border: 1px solid #43c6ac;
+    border-radius: 8px;
+    padding: 6px 18px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: background 0.3s, color 0.3s, border 0.3s;
+}
+body.dark .rules-toggle {
+    background: #232526;
+    color: #7fffd4;
+    border: 1px solid #7fffd4;
+}
+@media (max-width: 500px) {
+    .container { padding: 16px 4px; }
+}

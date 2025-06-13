@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Kilit Oyunu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark">
+    <div class="container">
+        <!-- Proje: locknemoji | Geliştirici: mehmetresulyilmaz -->
+        <div id="project-signature"></div>
+        <div id="difficulty-screen"></div>
+        <div id="game-screen" style="display:none;"></div>
+    </div>
+    <footer id="footer"></footer>
+    <script src="structure.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Dark mode toggle
+        window.toggleDark = function() {
+            document.body.classList.toggle('dark');
+            const darkBtn = document.getElementById('darkBtn');
+            if(document.body.classList.contains('dark')) {
+                darkBtn.textContent = '☀️ Açık Tema';
+            } else {
+                darkBtn.textContent = '🌙 Koyu Tema';
+            }
+        }
+        // Varsayılan olarak buton metni açık tema olsun
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkBtn = document.getElementById('darkBtn');
+            if (darkBtn) darkBtn.textContent = '☀️ Açık Tema';
+        });
+    </script>
+    <button id="darkBtn" onclick="toggleDark()" style="position:fixed;top:18px;right:18px;z-index:10;">☀️ Açık Tema</button>
+</body>
+</html>
