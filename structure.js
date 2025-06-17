@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Proje imzası
     document.getElementById('project-signature').innerHTML = `
         <div style="font-size:0.95em; color:#43c6ac; margin-bottom:8px; letter-spacing:1px;">
-            <b>locknemoji</b> <span style="color:#888;">|</span> <span style="color:#888;">by</span> <b>mehmetresulyilmaz</b>
+            <b>locknemoji</b> <span style="color:#888;">|</span> <span style="color:#888;">by</span> <a href="https://github.com/mehmetresulyilmaz" target="_blank" style="color:#43c6ac; text-decoration:underline; font-weight:bold;">mehmetresulyilmaz</a>
         </div>
     `;
 
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         <h2>🔒 Emoji Kilit</h2>
         <p>Zorluk seç:</p>
-        <button onclick="startGame('easy')">Kolay<br><span style='font-size:0.9em'>(3 emoji, 5 deneme)</span></button>
+        <button onclick="startGame('easy')">Kolay<br><span style='font-size:0.9em'>(3 emoji, 7 deneme)</span></button>
         <button onclick="startGame('medium')">Orta<br><span style='font-size:0.9em'>(4 emoji, 7 deneme)</span></button>
         <button onclick="startGame('hard')">Zor<br><span style='font-size:0.9em'>(5 emoji, 9 deneme)</span></button>
     `;
@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="result" id="result"></div>
         <button onclick="restartGame()" style="display:none; margin-top:12px;" id="restartBtn">Tekrar Oyna</button>
         <button onclick="showDifficultyScreen()" style="margin-top:8px;">Zorluk Değiştir</button>
+        <div id="emoji-modal" class="emoji-modal" style="display:none;"></div>
     `;
 
     // Footer

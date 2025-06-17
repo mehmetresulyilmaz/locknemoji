@@ -19,6 +19,9 @@ let secret = [];
 let guess = [];
 let attempts = 0;
 let gameOver = false;
+let hintCount = 0;
+const MAX_HINTS = 2;
+const HINT_AFTER_ATTEMPT = 3;
 
 function showDifficultyScreen() {
     document.getElementById('difficulty-screen').style.display = '';
@@ -27,8 +30,8 @@ function showDifficultyScreen() {
 
 function startGame(level) {
     if (level === 'easy') {
-        LOCK_SIZE = 3;
-        MAX_ATTEMPTS = 5;
+        LOCK_SIZE = 3; // Kolay modda 3 emoji
+        MAX_ATTEMPTS = 7; // Kolay modda 7 deneme
     } else if (level === 'medium') {
         LOCK_SIZE = 4;
         MAX_ATTEMPTS = 7;
@@ -41,43 +44,47 @@ function startGame(level) {
     restartGame();
 }
 
-function randomSecret() {
-    // EMOJIS listesinden rastgele LOCK_SIZE kadar farklı emoji seç, karışık türlerden olmasını garanti et
-    // Kategorileri ayır
+function randomSecret(level) {
+    // Kolay modda aynı kategoriden emoji seç
     const categories = [
-        // Meyveler
         ["🍎","🍌","🍇","🍉","🍓","🍒","🍑","🍍","🥝","🥥","🍊","🍋","🍈","🍏","🍐"],
-        // Hayvanlar
         ["🐱","🐶","🦄","🐻","🐼","🦊","🐸","🐵","🦁","🐯","🐷","🐰","🐨","🐙","🐢"],
-        // Hava Durumu
         ["🌧️","☀️","🌞","⛈️","🌩️","🌦️","🌈","❄️","🌪️","🌤️","🌫️"],
-        // Nesneler
         ["🎈","🎲","🎮","🎸","🎹","🎤","🎧","📚","📷","📱","💡","🕹️","🧩"],
-        // Yüz ifadeleri
         ["😀","😂","😍","😎","🥳","😱","😭","😡","😴","🤔","😇","🥰","😜","🤩","😅"],
-        // Diğer
         ["🚗","✈️","🚀","🏀","⚽","🏆","🎯","🛒","🎁","🍕","🍔","🍟","🍿","🍦","🍭"]
     ];
     let arr = [];
     let used = new Set();
-    // Önce her kategoriden en az bir tane seç (eğer LOCK_SIZE yeterliyse)
-    let catCount = Math.min(categories.length, LOCK_SIZE);
-    let cats = [...Array(categories.length).keys()];
-    for (let i = 0; i < catCount; i++) {
-        let catIdx = cats.splice(Math.floor(Math.random()*cats.length), 1)[0];
-        let pool = categories[catIdx].filter(e => !used.has(e));
-        let emoji = pool[Math.floor(Math.random()*pool.length)];
-        arr.push(emoji);
-        used.add(emoji);
-    }
-    // Kalan slotlar için rastgele kategoriden, tekrar etmeyen emoji seç
-    while (arr.length < LOCK_SIZE) {
+    if (level === 'easy') {
+        // Kolay modda tek bir kategoriden seç
         let catIdx = Math.floor(Math.random()*categories.length);
-        let pool = categories[catIdx].filter(e => !used.has(e));
-        if (pool.length === 0) continue;
-        let emoji = pool[Math.floor(Math.random()*pool.length)];
-        arr.push(emoji);
-        used.add(emoji);
+        let pool = categories[catIdx].slice();
+        while (arr.length < LOCK_SIZE) {
+            let idx = Math.floor(Math.random()*pool.length);
+            let emoji = pool.splice(idx, 1)[0];
+            arr.push(emoji);
+        }
+    } else {
+        // Kategorileri ayır
+        let catCount = Math.min(categories.length, LOCK_SIZE);
+        let cats = [...Array(categories.length).keys()];
+        for (let i = 0; i < catCount; i++) {
+            let catIdx = cats.splice(Math.floor(Math.random()*cats.length), 1)[0];
+            let pool = categories[catIdx].filter(e => !used.has(e));
+            let emoji = pool[Math.floor(Math.random()*pool.length)];
+            arr.push(emoji);
+            used.add(emoji);
+        }
+        // Kalan slotlar için rastgele kategoriden, tekrar etmeyen emoji seç
+        while (arr.length < LOCK_SIZE) {
+            let catIdx = Math.floor(Math.random()*categories.length);
+            let pool = categories[catIdx].filter(e => !used.has(e));
+            if (pool.length === 0) continue;
+            let emoji = pool[Math.floor(Math.random()*pool.length)];
+            arr.push(emoji);
+            used.add(emoji);
+        }
     }
     // Sıralamayı karıştır
     for (let i = arr.length - 1; i > 0; i--) {
@@ -85,6 +92,43 @@ function randomSecret() {
         [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;
+}
+
+// Sıcaklık (yakınlık) hesaplama fonksiyonu
+function getHotColdColor() {
+    // Doğru yerdeki emoji sayısını bul
+    let correct = 0;
+    for (let i = 0; i < LOCK_SIZE; i++) {
+        if (guess[i] === secret[i]) correct++;
+    }
+    // Oranla sıcaklık belirle
+    const ratio = correct / LOCK_SIZE;
+    // Mavi (soğuk) → Sarı → Turuncu → Kırmızı (sıcak)
+    if (ratio === 1) return '#ff3b3b'; // Tam doğru: kırmızı
+    if (ratio >= 0.66) return '#ff9800'; // turuncu
+    if (ratio >= 0.33) return '#ffe066'; // sarı
+    return '#43c6ac'; // soğuk (mavi-yeşil)
+}
+
+function openEmojiModal(slotIdx) {
+    const modal = document.getElementById('emoji-modal');
+    modal.innerHTML = '<div class="emoji-modal-content">' +
+        EMOJIS.map(e => `<button class=\"emoji-choice\" onclick=\"selectEmoji('${e}',${slotIdx})\">${e}</button>`).join('') +
+        '<button class="emoji-modal-close" onclick="closeEmojiModal()">Kapat</button>' +
+        '</div>';
+    modal.style.display = 'flex';
+}
+
+function closeEmojiModal() {
+    const modal = document.getElementById('emoji-modal');
+    modal.style.display = 'none';
+    modal.innerHTML = '';
+}
+
+function selectEmoji(emoji, slotIdx) {
+    guess[slotIdx] = emoji;
+    closeEmojiModal();
+    renderLock();
 }
 
 function renderLock() {
@@ -101,9 +145,7 @@ function renderLock() {
         btn.style.background = '#f8ffae';
         btn.onclick = () => {
             if (gameOver) return;
-            let idx = EMOJIS.indexOf(guess[i]);
-            guess[i] = EMOJIS[(idx+1)%EMOJIS.length];
-            renderLock();
+            openEmojiModal(i);
         };
         row.appendChild(btn);
     }
@@ -134,6 +176,79 @@ function feedbackRow(guessArr) {
     return fb;
 }
 
+function getShareText() {
+    // Oyun numarası için bugünün tarihiyle basit bir sayı üretelim
+    const today = new Date();
+    const gameNumber = today.getFullYear()*10000 + (today.getMonth()+1)*100 + today.getDate();
+    let text = `locknemoji ${gameNumber} ${gameOver && attempts <= MAX_ATTEMPTS ? attempts : 'X'}/${MAX_ATTEMPTS}\n`;
+    // Sadece kutucuklardan oluşan tablo
+    const feedbackDivs = document.getElementById('feedback-list').children;
+    for (let i = 0; i < feedbackDivs.length; i++) {
+        const row = feedbackDivs[i];
+        let fb = row.querySelector('span:last-child')?.textContent || '';
+        // 🟢 → 🟩, 🟡 → 🟨, 🔴 → ⬛
+        fb = fb.replace(/🟢/g, '🟩').replace(/🟡/g, '🟨').replace(/🔴/g, '⬛');
+        text += `${fb}\n`;
+    }
+    text += '\nlocknemoji.app';
+    return text;
+}
+
+function showShareButton() {
+    let shareBtn = document.getElementById('shareBtn');
+    if (!shareBtn) {
+        shareBtn = document.createElement('button');
+        shareBtn.id = 'shareBtn';
+        shareBtn.textContent = 'Paylaş';
+        shareBtn.onclick = () => {
+            const shareText = getShareText();
+            navigator.clipboard.writeText(shareText).then(() => {
+                shareBtn.textContent = 'Kopyalandı!';
+                setTimeout(() => { shareBtn.textContent = 'Paylaş'; }, 1500);
+            });
+        };
+        document.getElementById('result').appendChild(shareBtn);
+    }
+}
+
+function showHintButton() {
+    let hintBtn = document.getElementById('hintBtn');
+    if (!hintBtn && attempts >= HINT_AFTER_ATTEMPT && hintCount < MAX_HINTS && !gameOver) {
+        hintBtn = document.createElement('button');
+        hintBtn.id = 'hintBtn';
+        hintBtn.textContent = `Hint (${MAX_HINTS - hintCount})`;
+        hintBtn.onclick = giveHint;
+        document.getElementById('result').appendChild(hintBtn);
+    } else if (hintBtn) {
+        hintBtn.textContent = `Hint (${MAX_HINTS - hintCount})`;
+        if (hintCount >= MAX_HINTS || gameOver) hintBtn.disabled = true;
+    }
+}
+
+function giveHint() {
+    if (hintCount >= MAX_HINTS || gameOver) return;
+    // Rastgele bir slot seç, daha önce gösterilmemiş olsun
+    if (!window.hintedSlots) window.hintedSlots = [];
+    let available = [];
+    for (let i = 0; i < LOCK_SIZE; i++) {
+        if (!window.hintedSlots.includes(i)) available.push(i);
+    }
+    if (available.length === 0) return;
+    let slot = available[Math.floor(Math.random() * available.length)];
+    window.hintedSlots.push(slot);
+    hintCount++;
+    // İpucunu göster
+    let hintDiv = document.getElementById('hintDiv');
+    if (!hintDiv) {
+        hintDiv = document.createElement('div');
+        hintDiv.id = 'hintDiv';
+        hintDiv.style.marginTop = '8px';
+        document.getElementById('result').appendChild(hintDiv);
+    }
+    hintDiv.innerHTML += `<div>${slot+1}. kutudaki emoji: <span style='font-size:1.3em'>${secret[slot]}</span></div>`;
+    showHintButton();
+}
+
 function submitGuess() {
     if (gameOver) return;
     attempts++;
@@ -159,18 +274,21 @@ function submitGuess() {
         document.getElementById('restartBtn').style.display = '';
         gameOver = true;
         document.getElementById('submitBtn').disabled = true;
+        showShareButton();
     } else if (attempts >= MAX_ATTEMPTS) {
         document.getElementById('result').textContent = `Kaybettin! Doğru kombinasyon: ${secret.join(' ')} 😜`;
         document.getElementById('restartBtn').style.display = '';
         gameOver = true;
         document.getElementById('submitBtn').disabled = true;
+        showShareButton();
     }
     document.getElementById('score').textContent = `Deneme: ${attempts} / ${MAX_ATTEMPTS}`;
+    showHintButton();
 }
 
 function restartGame() {
     // Her oyun başında guess dizisini de random başlat
-    secret = randomSecret();
+    secret = randomSecret(window.currentLevel || 'easy');
     // guess dizisi de EMOJIS listesinden rastgele seçilsin, secret ile aynı olmasın
     let pool = [...EMOJIS];
     secret.forEach(e => {
@@ -185,6 +303,12 @@ function restartGame() {
     }
     attempts = 0;
     gameOver = false;
+    hintCount = 0;
+    window.hintedSlots = [];
+    let hintDiv = document.getElementById('hintDiv');
+    if (hintDiv) hintDiv.innerHTML = '';
+    let hintBtn = document.getElementById('hintBtn');
+    if (hintBtn) hintBtn.remove();
     document.getElementById('feedback-list').innerHTML = '';
     document.getElementById('result').textContent = '';
     document.getElementById('score').textContent = `Deneme: 0 / ${MAX_ATTEMPTS}`;
